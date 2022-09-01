@@ -9,12 +9,11 @@ import android.graphics.Canvas
 import android.graphics.Path
 import android.util.AttributeSet
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatImageButton
 import androidx.core.graphics.toRectF
@@ -22,10 +21,10 @@ import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
-import com.google.android.exoplayer2.ui.PlayerView
 import com.google.android.exoplayer2.util.MimeTypes
 import com.potyvideo.library.R
 import com.potyvideo.library.VideoActivity
+import com.potyvideo.library.databinding.LayoutPlayerBaseKotlinBinding
 import com.potyvideo.library.globalEnums.*
 import com.potyvideo.library.globalInterfaces.AndExoPlayerListener
 import com.potyvideo.library.newplayer.player.MagicalExoPlayerProvider
@@ -43,33 +42,28 @@ class MagicalExoPlayer @JvmOverloads constructor(
     defStyle: Int = 0,
 ) : LinearLayout(context, attributeSet, defStyle), Player.Listener {
 
-    private var inflatedView: View =
-        inflate(context, R.layout.layout_player_base_kotlin, this)
+    private var binding: LayoutPlayerBaseKotlinBinding = LayoutPlayerBaseKotlinBinding.inflate(
+        LayoutInflater.from(context),
+        this,
+        true
+    )
 
-    private var playerView: PlayerView =
-        inflatedView.findViewById(R.id.playerView)
-    private var retryView: LinearLayout =
-        inflatedView.findViewById(R.id.retry_view)
-    private var retryViewTitle: TextView =
-        retryView.findViewById(R.id.textView_retry_title)
-    private var retryButton: Button =
-        retryView.findViewById(R.id.button_try_again)
     private var backwardView: AppCompatButton =
-        inflatedView.findViewById(R.id.exo_backward)
+        binding.playerView.findViewById(R.id.exo_backward)
     private var forwardView: AppCompatButton =
-        inflatedView.findViewById(R.id.exo_forward)
+        binding.playerView.findViewById(R.id.exo_forward)
     private var mute: AppCompatImageButton =
-        playerView.findViewById(R.id.exo_mute)
+        binding.playerView.findViewById(R.id.exo_mute)
     private var unMute: AppCompatImageButton =
-        playerView.findViewById(R.id.exo_unmute)
+        binding.playerView.findViewById(R.id.exo_unmute)
     private var settingContainer: FrameLayout =
-        playerView.findViewById(R.id.container_setting)
+        binding.playerView.findViewById(R.id.container_setting)
     private var fullScreenContainer: FrameLayout =
-        playerView.findViewById(R.id.container_fullscreen)
+        binding.playerView.findViewById(R.id.container_fullscreen)
     private var enterFullScreen: AppCompatImageButton =
-        playerView.findViewById(R.id.exo_enter_fullscreen)
+        binding.playerView.findViewById(R.id.exo_enter_fullscreen)
     private var exitFullScreen: AppCompatImageButton =
-        playerView.findViewById(R.id.exo_exit_fullscreen)
+        binding.playerView.findViewById(R.id.exo_exit_fullscreen)
 
     var currAspectRatio: EnumAspectRatio = EnumAspectRatio.ASPECT_16_9
     var currRepeatMode: EnumRepeatMode = EnumRepeatMode.REPEAT_OFF
@@ -82,7 +76,7 @@ class MagicalExoPlayer @JvmOverloads constructor(
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         listOf(
-            retryButton,
+            binding.retryView.buttonTryAgain,
             backwardView,
             forwardView,
             mute,
@@ -98,13 +92,13 @@ class MagicalExoPlayer @JvmOverloads constructor(
     }
 
     private fun showRetryView(retryTitle: String?) {
-        retryView.visibility = VISIBLE
+        binding.retryView.root.visibility = VISIBLE
         if (retryTitle != null)
-            retryViewTitle.text = retryTitle
+            binding.retryView.textViewRetryTitle.text = retryTitle
     }
 
     private fun hideRetryView() {
-        retryView.visibility = GONE
+        binding.retryView.root.visibility = GONE
     }
 
     private fun showLoading() {
@@ -123,11 +117,11 @@ class MagicalExoPlayer @JvmOverloads constructor(
     }
 
     private fun showController() {
-        playerView.showController()
+        binding.playerView.showController()
     }
 
     private fun hideController() {
-        playerView.hideController()
+        binding.playerView.hideController()
     }
 
     private fun showUnMuteButton() {
@@ -172,7 +166,7 @@ class MagicalExoPlayer @JvmOverloads constructor(
     }
 
     private fun showSystemUI() {
-        playerView.systemUiVisibility = (SYSTEM_UI_FLAG_LOW_PROFILE
+        binding.playerView.systemUiVisibility = (SYSTEM_UI_FLAG_LOW_PROFILE
                 or SYSTEM_UI_FLAG_IMMERSIVE
                 or SYSTEM_UI_FLAG_FULLSCREEN
                 or SYSTEM_UI_FLAG_LAYOUT_STABLE
@@ -183,7 +177,7 @@ class MagicalExoPlayer @JvmOverloads constructor(
     }
 
     private fun hideSystemUI() {
-        playerView.systemUiVisibility = (SYSTEM_UI_FLAG_LOW_PROFILE
+        binding.playerView.systemUiVisibility = (SYSTEM_UI_FLAG_LOW_PROFILE
                 or SYSTEM_UI_FLAG_LAYOUT_STABLE)
     }
 
@@ -222,7 +216,7 @@ class MagicalExoPlayer @JvmOverloads constructor(
     private var customClickListener = DoubleClick(object : DoubleClickListener {
         override fun onSingleClickEvent(view: View) {
             when (view) {
-                retryButton -> {
+                binding.retryView.buttonTryAgain -> {
                     hideRetryView()
                     restartPlayer()
                 }
@@ -245,7 +239,7 @@ class MagicalExoPlayer @JvmOverloads constructor(
         player.addListener(this)
         extractAttrs(attributeSet)
         listOf(
-            retryButton,
+            binding.retryView.buttonTryAgain,
             mute,
             unMute,
             enterFullScreen,
@@ -449,7 +443,7 @@ class MagicalExoPlayer @JvmOverloads constructor(
 
         val mediaItem = buildMediaItem(fixedSource, extraHeaders)
 
-        playerView.player = player
+        binding.playerView.player = player
         player.playWhenReady = currPlayWhenReady
         player.setMediaItem(mediaItem)
         player.prepare()
@@ -472,10 +466,10 @@ class MagicalExoPlayer @JvmOverloads constructor(
     }
 
     fun setShowTimeOut(showTimeoutMs: Int) {
-        playerView.controllerShowTimeoutMs = showTimeoutMs
+        binding.playerView.controllerShowTimeoutMs = showTimeoutMs
         if (showTimeoutMs == 0) {
-            playerView.useController = false
-            playerView.controllerHideOnTouch = false
+            binding.playerView.useController = false
+            binding.playerView.controllerHideOnTouch = false
         }
     }
 
@@ -511,27 +505,28 @@ class MagicalExoPlayer @JvmOverloads constructor(
         this.currAspectRatio = aspectRatio
         val value = PublicFunctions.getScreenWidth()
         when (aspectRatio) {
-            EnumAspectRatio.ASPECT_1_1 -> playerView.layoutParams =
+            EnumAspectRatio.ASPECT_1_1 -> binding.playerView.layoutParams =
                 FrameLayout.LayoutParams(value, value)
-            EnumAspectRatio.ASPECT_4_3 -> playerView.layoutParams =
+            EnumAspectRatio.ASPECT_4_3 -> binding.playerView.layoutParams =
                 FrameLayout.LayoutParams(value, 3 * value / 4)
-            EnumAspectRatio.ASPECT_16_9 -> playerView.layoutParams =
+            EnumAspectRatio.ASPECT_16_9 -> binding.playerView.layoutParams =
                 FrameLayout.LayoutParams(value, 9 * value / 16)
-            EnumAspectRatio.ASPECT_MATCH -> playerView.layoutParams = FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-            )
+            EnumAspectRatio.ASPECT_MATCH -> binding.playerView.layoutParams =
+                FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+                )
             EnumAspectRatio.ASPECT_MP3 -> {
-                playerView.controllerShowTimeoutMs = 0
-                playerView.controllerHideOnTouch = false
+                binding.playerView.controllerShowTimeoutMs = 0
+                binding.playerView.controllerHideOnTouch = false
                 val mp3Height =
                     context.resources.getDimensionPixelSize(R.dimen.player_controller_base_height)
-                playerView.layoutParams =
+                binding.playerView.layoutParams =
                     FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, mp3Height)
             }
             EnumAspectRatio.UNDEFINE -> {
                 val baseHeight = resources.getDimension(R.dimen.player_base_height).toInt()
-                playerView.layoutParams =
+                binding.playerView.layoutParams =
                     FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, baseHeight)
             }
         }
@@ -539,10 +534,13 @@ class MagicalExoPlayer @JvmOverloads constructor(
 
     fun setResizeMode(resizeMode: EnumResizeMode) {
         when (resizeMode) {
-            EnumResizeMode.FIT -> playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
-            EnumResizeMode.FILL -> playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FILL
-            EnumResizeMode.ZOOM -> playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_ZOOM
-            else -> playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
+            EnumResizeMode.FIT -> binding.playerView.resizeMode =
+                AspectRatioFrameLayout.RESIZE_MODE_FIT
+            EnumResizeMode.FILL -> binding.playerView.resizeMode =
+                AspectRatioFrameLayout.RESIZE_MODE_FILL
+            EnumResizeMode.ZOOM -> binding.playerView.resizeMode =
+                AspectRatioFrameLayout.RESIZE_MODE_ZOOM
+            else -> binding.playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
         }
     }
 
@@ -599,7 +597,7 @@ class MagicalExoPlayer @JvmOverloads constructor(
         super.onDetachedFromWindow()
         releasePlayer()
         listOf(
-            retryButton,
+            binding.retryView.buttonTryAgain,
             backwardView,
             forwardView,
             mute,
@@ -617,10 +615,10 @@ class MagicalExoPlayer @JvmOverloads constructor(
         if (newConfig!!.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             // First Hide other objects (list-view or recyclerview), better hide them using Gone.
             hideSystemUI()
-            val params = playerView.layoutParams as FrameLayout.LayoutParams
+            val params = binding.playerView.layoutParams as FrameLayout.LayoutParams
             params.width = ViewGroup.LayoutParams.MATCH_PARENT
             params.height = ViewGroup.LayoutParams.MATCH_PARENT
-            playerView.layoutParams = params
+            binding.playerView.layoutParams = params
         } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
             // un hide your objects here.
             showSystemUI()
