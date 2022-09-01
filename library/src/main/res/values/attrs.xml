@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <declare-styleable name="AndExoPlayerView">
+    <attr name="shape" format="enum">
+        <enum name="circle" value="0" />
+        <enum name="rectangle" value="1" />
+    </attr>
+    <declare-styleable name="MagicalExoPlayer">
         <attr name="andexo_resize_mode" />
         <attr name="andexo_aspect_ratio" />
         <attr name="andexo_loop" />
@@ -9,6 +13,7 @@
         <attr name="andexo_show_full_screen" format="boolean" />
         <attr name="andexo_play_when_ready" format="boolean" />
         <attr name="andexo_show_controller" format="boolean" />
+        <attr name="shape" />
     </declare-styleable>
 
     <attr name="andexo_resize_mode" format="enum">

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black_80">
+
+    <ImageView
+        android:id="@+id/close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:contentDescription="@string/label_close"
+        android:elevation="3dp"
+        android:padding="@dimen/padding_all_general_small"
+        android:src="@mipmap/ic_close" />
+
+    <com.potyvideo.library.newplayer.MagicalExoPlayer
+        android:id="@+id/player"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        app:andexo_aspect_ratio="aspect_match"
+        app:andexo_play_when_ready="true"
+        app:andexo_show_controller="true"
+        app:andexo_show_full_screen="true" />
+
+</FrameLayout>

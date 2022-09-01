@@ -25,5 +25,6 @@
     <color name="divider">#C0BEBE</color>
     <color name="playerColor">#E8263238</color>
     <color name="playerColorDark">#141B1E</color>
+    <color name="black_80">#CC000000</color>
 
 </resources>

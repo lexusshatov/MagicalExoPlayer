@@ -6,9 +6,9 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
-import com.potyvideo.library.AndExoPlayerView
 import com.potyvideo.library.globalEnums.EnumResizeMode
 import com.potyvideo.library.globalInterfaces.AndExoPlayerListener
+import com.potyvideo.library.newplayer.MagicalExoPlayer
 import com.potyvideo.library.utils.PathUtil
 import com.potyvideo.library.utils.PublicFunctions
 import com.potyvideo.library.utils.PublicValues
@@ -16,17 +16,17 @@ import java.net.URISyntaxException
 
 class MainActivityKotlin : AppCompatActivity(), AndExoPlayerListener, View.OnClickListener {
 
-    lateinit var andExoPlayerView: AndExoPlayerView
+    private lateinit var magicalExoPlayer: MagicalExoPlayer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_kotlin)
 
-        andExoPlayerView = findViewById(R.id.andExoPlayerView)
+        magicalExoPlayer = findViewById(R.id.andExoPlayerView)
 
-        andExoPlayerView.setResizeMode(EnumResizeMode.ZOOM) // sync with attrs
-        andExoPlayerView.setAndExoPlayerListener(this)
-        andExoPlayerView.setPlayWhenReady(true)
+        magicalExoPlayer.setResizeMode(EnumResizeMode.ZOOM) // sync with attrs
+        magicalExoPlayer.setAndExoPlayerListener(this)
+        magicalExoPlayer.setPlayWhenReady(true)
 
         findViewById<AppCompatButton>(R.id.local).setOnClickListener(this)
         findViewById<AppCompatButton>(R.id.stream_mp4).setOnClickListener(this)
@@ -97,15 +97,15 @@ class MainActivityKotlin : AppCompatActivity(), AndExoPlayerListener, View.OnCli
     }
 
     private fun loadMP4Locale(filePath: String) {
-        andExoPlayerView.setSource(filePath)
+        magicalExoPlayer.setSource(filePath)
     }
 
     private fun loadMP4Stream(urlMP4: String) {
-        andExoPlayerView.setSource(urlMP4)
+        magicalExoPlayer.setSource(urlMP4)
     }
 
     private fun loadHLSStream(urlHLS: String) {
-        andExoPlayerView.setSource(urlHLS)
+        magicalExoPlayer.setSource(urlHLS)
     }
 
 }
