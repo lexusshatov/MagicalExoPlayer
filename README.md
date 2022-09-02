@@ -1,6 +1,6 @@
 # Getting started
 
-### 1.Init player in your application class:
+### 1. Init player in your application class
 
 ```
 class MagicalExoPlayerApp : Application() {
