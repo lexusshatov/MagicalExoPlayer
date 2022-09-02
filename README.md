@@ -23,3 +23,9 @@ class MagicalExoPlayerApp : Application() {
         app:andexo_show_controller="true"
         app:andexo_show_full_screen="true" />
 ```
+
+### 3. Start video from your code
+
+```
+magicalExoPlayer.setSource("video.mp4")
+```
