@@ -3,7 +3,10 @@ package com.potyvideo.library.utils
 import android.os.Handler
 import android.view.View
 
-open class DoubleClick(private val doubleClickListener: DoubleClickListener, private var interval: Long = 200L) : View.OnClickListener {
+open class DoubleClick(
+    private val doubleClickListener: DoubleClickListener,
+    private var interval: Long = 200L,
+) : View.OnClickListener {
 
     private val handler = Handler()
     private var counterClicks = 0
