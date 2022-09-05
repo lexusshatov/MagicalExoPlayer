@@ -24,7 +24,7 @@ import com.potyvideo.library.R
 import com.potyvideo.library.VideoActivity
 import com.potyvideo.library.databinding.LayoutPlayerBaseKotlinBinding
 import com.potyvideo.library.globalEnums.*
-import com.potyvideo.library.globalInterfaces.AndExoPlayerListener
+import com.potyvideo.library.globalInterfaces.MagicalExoPlayerListener
 import com.potyvideo.library.newplayer.player.MagicalExoPlayerProvider
 import com.potyvideo.library.newplayer.player.Shape
 import com.potyvideo.library.utils.*
@@ -71,6 +71,22 @@ class MagicalExoPlayer @JvmOverloads constructor(
     var currPlaybackSpeed: EnumPlaybackSpeed = EnumPlaybackSpeed.NORMAL
     var currScreenMode: EnumScreenMode = EnumScreenMode.MINIMISE
 
+    private var currSource: String? = null
+
+    private val player: Player = MagicalExoPlayerProvider.playerProvider.provide()
+
+    private var playerListener: MagicalExoPlayerListener = MagicalExoPlayerListener.Default
+    private var currPlayWhenReady: Boolean = true
+    private var playbackPosition: Long = 0
+    private var currentWindow: Int = 0
+    private var currVolume: Float = 0f
+
+    var shape: Shape = Shape.RECTANGLE
+        set(value) {
+            field = value
+            invalidate()
+        }
+
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         listOf(
@@ -85,10 +101,6 @@ class MagicalExoPlayer @JvmOverloads constructor(
         ).forEach { it.setOnClickListener(customClickListener) }
     }
 
-    private fun showRetryView() {
-        showRetryView(null)
-    }
-
     private fun showRetryView(retryTitle: String?) {
         binding.retryView.root.visibility = VISIBLE
         if (retryTitle != null)
@@ -99,29 +111,6 @@ class MagicalExoPlayer @JvmOverloads constructor(
         binding.retryView.root.visibility = GONE
     }
 
-    private fun showLoading() {
-        hideRetryView()
-    }
-
-    private fun hideLoading() {
-        hideRetryView()
-    }
-
-    private fun setShowController(showController: Boolean = true) {
-        if (showController)
-            showController()
-        else
-            hideController()
-    }
-
-    private fun showController() {
-        binding.playerView.showController()
-    }
-
-    private fun hideController() {
-        binding.playerView.hideController()
-    }
-
     private fun showUnMuteButton() {
         mute.visibility = GONE
         unMute.visibility = VISIBLE
@@ -130,13 +119,6 @@ class MagicalExoPlayer @JvmOverloads constructor(
     private fun showMuteButton() {
         mute.visibility = VISIBLE
         unMute.visibility = GONE
-    }
-
-    private fun setShowSettingButton(showSetting: Boolean = false) {
-        if (showSetting)
-            settingContainer.visibility = VISIBLE
-        else
-            settingContainer.visibility = GONE
     }
 
     private fun setShowFullScreenButton(showFullscreenButton: Boolean = false) {
@@ -178,22 +160,6 @@ class MagicalExoPlayer @JvmOverloads constructor(
         binding.playerView.systemUiVisibility = (SYSTEM_UI_FLAG_LOW_PROFILE
                 or SYSTEM_UI_FLAG_LAYOUT_STABLE)
     }
-
-    private var currSource: String? = null
-
-    private val player: Player = MagicalExoPlayerProvider.playerProvider.provide()
-
-    private var andExoPlayerListener: AndExoPlayerListener? = null
-    private var currPlayWhenReady: Boolean = true
-    private var playbackPosition: Long = 0
-    private var currentWindow: Int = 0
-    private var currVolume: Float = 0f
-
-    var shape: Shape = Shape.RECTANGLE
-        set(value) {
-            field = value
-            invalidate()
-        }
 
     override fun dispatchDraw(canvas: Canvas) {
         val rect = canvas.clipBounds.toRectF()
@@ -333,18 +299,16 @@ class MagicalExoPlayer @JvmOverloads constructor(
 
     override fun onPlayerError(error: PlaybackException) {
         showRetryView(error.message)
-        andExoPlayerListener?.let {
-            andExoPlayerListener!!.onExoPlayerError(errorMessage = error.message)
-        }
+        playerListener.onExoPlayerError(error.message)
     }
 
     @Deprecated("Deprecated in Java")
     override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
         when (playbackState) {
-            ExoPlayer.STATE_BUFFERING -> andExoPlayerListener?.onExoBuffering()
-            ExoPlayer.STATE_ENDED -> andExoPlayerListener?.onExoEnded()
-            ExoPlayer.STATE_IDLE -> andExoPlayerListener?.onExoIdle()
-            ExoPlayer.STATE_READY -> andExoPlayerListener?.onExoReady()
+            ExoPlayer.STATE_BUFFERING -> playerListener.onExoBuffering()
+            ExoPlayer.STATE_ENDED -> playerListener.onExoEnded()
+            ExoPlayer.STATE_IDLE -> playerListener.onExoIdle()
+            ExoPlayer.STATE_READY -> playerListener.onExoReady()
         }
     }
 
@@ -421,14 +385,15 @@ class MagicalExoPlayer @JvmOverloads constructor(
             .build()
     }
 
-    fun setAndExoPlayerListener(andExoPlayerListener: AndExoPlayerListener) {
-        this.andExoPlayerListener = andExoPlayerListener
+    fun setAndExoPlayerListener(andExoExoPlayerListener: MagicalExoPlayerListener) {
+        this.playerListener = andExoExoPlayerListener
     }
 
     fun setSource(
         source: String,
         extraHeaders: Map<String, String> = mapOf(),
     ) {
+        hideRetryView()
         val fixedSource = source.replace("http:", "https:")
         Log.d("ExoPlayer", "Load file: $fixedSource")
         currSource = fixedSource
@@ -543,17 +508,14 @@ class MagicalExoPlayer @JvmOverloads constructor(
 
     fun pausePlayer() {
         player.playWhenReady = false
-        player.playbackState
     }
 
     fun stopPlayer() {
         player.stop()
-        player.playbackState
     }
 
     fun startPlayer() {
         player.playWhenReady = true
-        player.playbackState
     }
 
     @SuppressLint("SourceLockedOrientationActivity")

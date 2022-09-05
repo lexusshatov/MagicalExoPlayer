@@ -7,14 +7,14 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import com.potyvideo.library.globalEnums.EnumResizeMode
-import com.potyvideo.library.globalInterfaces.AndExoPlayerListener
+import com.potyvideo.library.globalInterfaces.MagicalExoPlayerListener
 import com.potyvideo.library.newplayer.MagicalExoPlayer
 import com.potyvideo.library.utils.PathUtil
 import com.potyvideo.library.utils.PublicFunctions
 import com.potyvideo.library.utils.PublicValues
 import java.net.URISyntaxException
 
-class MainActivityKotlin : AppCompatActivity(), AndExoPlayerListener, View.OnClickListener {
+class MainActivityKotlin : AppCompatActivity(), MagicalExoPlayerListener, View.OnClickListener {
 
     private lateinit var magicalExoPlayer: MagicalExoPlayer
 
@@ -37,6 +37,8 @@ class MainActivityKotlin : AppCompatActivity(), AndExoPlayerListener, View.OnCli
         // starter stream
         loadMP4Stream(PublicValues.TEST_URL_MP4_V3)
 
+
+        magicalExoPlayer.setSource("video.mp4")
     }
 
     override fun onExoPlayerError(errorMessage: String?) {
