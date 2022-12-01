@@ -17,6 +17,8 @@ import android.widget.LinearLayout
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatImageButton
 import androidx.core.graphics.toRectF
+import androidx.lifecycle.findViewTreeLifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import com.google.android.exoplayer2.util.MimeTypes
@@ -28,6 +30,8 @@ import com.potyvideo.library.globalInterfaces.MagicalExoPlayerListener
 import com.potyvideo.library.newplayer.player.MagicalExoPlayerProvider
 import com.potyvideo.library.newplayer.player.Shape
 import com.potyvideo.library.utils.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlin.math.min
 
 /**
@@ -330,8 +334,10 @@ class MagicalExoPlayer @JvmOverloads constructor(
         currPlayWhenReady = player.playWhenReady
         playbackPosition = player.currentPosition
         currentWindow = player.currentWindowIndex
-        player.stop()
-        player.release()
+        findViewTreeLifecycleOwner()?.lifecycleScope?.launch(Dispatchers.IO) {
+            player.stop()
+            player.release()
+        }
     }
 
     private fun restartPlayer() {
@@ -520,22 +526,11 @@ class MagicalExoPlayer @JvmOverloads constructor(
 
     @SuppressLint("SourceLockedOrientationActivity")
     fun setScreenMode(screenMode: EnumScreenMode = EnumScreenMode.MINIMISE) {
-
-        when (screenMode) {
-            EnumScreenMode.FULLSCREEN -> {
-                context.getActivity()?.requestedOrientation =
-                    ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-            }
-            EnumScreenMode.MINIMISE -> {
-                context.getActivity()?.requestedOrientation =
-                    ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-            }
-            else -> {
-                context.getActivity()?.requestedOrientation =
-                    ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-            }
+        context?.getActivity()?.requestedOrientation = when (screenMode) {
+            EnumScreenMode.FULLSCREEN -> ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+            EnumScreenMode.MINIMISE -> ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            else -> ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
-
         currScreenMode = screenMode
         setShowScreenModeButton(currScreenMode)
     }
