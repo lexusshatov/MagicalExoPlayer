@@ -334,8 +334,8 @@ class MagicalExoPlayer @JvmOverloads constructor(
         currPlayWhenReady = player.playWhenReady
         playbackPosition = player.currentPosition
         currentWindow = player.currentWindowIndex
+        player.stop()
         findViewTreeLifecycleOwner()?.lifecycleScope?.launch(Dispatchers.IO) {
-            player.stop()
             player.release()
         }
     }
